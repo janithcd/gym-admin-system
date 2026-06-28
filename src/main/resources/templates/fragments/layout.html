@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <title th:text="${title}">Gym Admin System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+
+<body>
+
+<div th:fragment="sidebar" class="sidebar">
+    <div class="sidebar-brand">Gym Admin</div>
+
+    <a href="/">Dashboard</a>
+    <a href="/members">Members</a>
+    <a href="/members/new">Add Member</a>
+    <a href="/plans">Membership Plans</a>
+    <a href="/payments">Payments</a>
+    <a href="/payments/new">Add Payment</a>
+    <a href="/access/scan">Access Scan</a>
+    <a href="/access/logs">Access Logs</a>
+    <a href="/admins">Admin Users</a>
+
+    <hr style="border-color: #374151;">
+
+    <form th:action="@{/logout}" method="post">
+        <button type="submit"
+                class="btn btn-outline-light w-100">
+            Logout
+        </button>
+    </form>
+</div>
+
+<div th:fragment="topbar(pageTitle, pageSubtitle)" class="topbar">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h3 class="page-title" th:text="${pageTitle}">Page Title</h3>
+            <p class="page-subtitle" th:text="${pageSubtitle}">Page subtitle</p>
+        </div>
+
+        <div class="col-md-4 live-time-box">
+            <div class="live-time" id="liveTime">--:--:--</div>
+            <div class="live-date" id="liveDate">Loading date...</div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/admin.js}"></script>
+</div>
+
+</body>
+</html>

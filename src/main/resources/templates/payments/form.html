@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Add Payment')}"></head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/layout :: topbar('Add Payment', 'Record member payment and update access permission')}"></div>
+
+        <div class="content-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0">Payment Details</h5>
+                <a href="/payments" class="btn btn-outline-secondary action-btn">Back to Payments</a>
+            </div>
+
+            <form th:action="@{/payments/save}" method="post">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Member</label>
+                        <select name="memberId" class="form-select" required>
+                            <option value="">Select Member</option>
+                            <option th:each="member : ${members}"
+                                    th:value="${member.id}"
+                                    th:text="${member.memberCode + ' - ' + member.fullName + ' - ' + member.phone}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Membership Plan</label>
+                        <select name="planId" class="form-select" required>
+                            <option value="">Select Plan</option>
+                            <option th:each="plan : ${plans}"
+                                    th:value="${plan.id}"
+                                    th:text="${plan.planName + ' - ' + plan.durationDays + ' days - Rs. ' + plan.price}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Amount</label>
+                        <input type="number"
+                               name="amount"
+                               class="form-control"
+                               step="0.01"
+                               min="0"
+                               placeholder="Leave empty to use plan price">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Payment Method</label>
+                        <select name="paymentMethod" class="form-select" required>
+                            <option value="">Select Method</option>
+                            <option th:each="method : ${paymentMethods}"
+                                    th:value="${method}"
+                                    th:text="${method}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Payment Date</label>
+                        <input type="date" name="paymentDate" class="form-control" th:value="${today}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" name="startDate" class="form-control" th:value="${today}">
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label">Note</label>
+                        <textarea name="note" class="form-control" rows="2" placeholder="Optional payment note"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success action-btn">Save Payment</button>
+                    <a href="/payments" class="btn btn-outline-secondary action-btn">Cancel</a>
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

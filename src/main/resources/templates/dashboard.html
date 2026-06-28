@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gym Admin Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background: #f4f6f9;
+            font-family: Arial, sans-serif;
+        }
+
+        .app-navbar {
+            background: linear-gradient(90deg, #111827, #1f2937);
+        }
+
+        .dashboard-title {
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .stat-card {
+            border: 0;
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            transition: 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 0;
+        }
+
+        .chart-card {
+            border: 0;
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .chart-title {
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .chart-subtitle {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .chart-large {
+            height: 300px;
+        }
+
+        .chart-small {
+            height: 220px;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+
+        .module-btn {
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-weight: 600;
+        }
+
+        .time-card {
+            background: #111827;
+            color: white;
+            border-radius: 18px;
+            padding: 22px 26px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+            min-height: 112px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .greeting-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .greeting-subtitle {
+            font-size: 14px;
+            color: #d1d5db;
+            margin-bottom: 0;
+        }
+
+        .live-time-box {
+            text-align: right;
+        }
+
+        .live-time {
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .live-date {
+            color: #d1d5db;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 576px) {
+            .time-card {
+                display: block;
+                text-align: left;
+            }
+
+            .live-time-box {
+                text-align: left;
+                margin-top: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark app-navbar px-3">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">Gym Admin System</span>
+
+        <div class="d-flex gap-2">
+            <a href="/access/scan" class="btn btn-warning btn-sm">Access Scan</a>
+            <a href="/payments/new" class="btn btn-success btn-sm">New Payment</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid py-4 px-4">
+
+    <!-- Header -->
+    <div class="row g-3 align-items-center mb-4">
+        <div class="col-lg-8">
+            <h2 class="dashboard-title mb-1">Dashboard Overview</h2>
+            <p class="text-muted mb-0">Monitor members, payments, income, and gym access activity.</p>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="time-card">
+                <div>
+                    <div class="greeting-title">
+                        <span id="greetingText">Welcome</span>,
+                        <span th:text="${adminName}">Admin</span>
+                    </div>
+                    <p class="greeting-subtitle">
+                        Here is your gym performance overview for today.
+                    </p>
+                </div>
+
+                <div class="live-time-box">
+                    <div class="live-time" id="liveTime">--:--:--</div>
+                    <div class="live-date" id="liveDate">Loading date...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Stat Cards -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-label">Total Members</div>
+                    <h3 class="stat-value" th:text="${stats.totalMembers}">0</h3>
+                    <a href="/members" class="small text-decoration-none">View members</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-label">Active Members</div>
+                    <h3 class="stat-value text-success" th:text="${stats.activeMembers}">0</h3>
+                    <span class="small text-muted">Members allowed to enter</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-label">Expired Members</div>
+                    <h3 class="stat-value text-danger" th:text="${stats.expiredMembers}">0</h3>
+                    <span class="small text-muted">Need payment renewal</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-label">Suspended Members</div>
+                    <h3 class="stat-value text-warning" th:text="${stats.suspendedMembers}">0</h3>
+                    <span class="small text-muted">Manually blocked accounts</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Income and Activity Cards -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-label">Today Income</div>
+                    <h3 class="stat-value">
+                        Rs. <span th:text="${stats.todayIncome}">0.00</span>
+                    </h3>
+                    <span class="small text-muted">Collected today</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-label">Monthly Income</div>
+                    <h3 class="stat-value">
+                        Rs. <span th:text="${stats.monthlyIncome}">0.00</span>
+                    </h3>
+                    <span class="small text-muted">This month</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-label">Today Check-ins</div>
+                    <h3 class="stat-value" th:text="${stats.todayCheckIns}">0</h3>
+                    <a href="/access/logs" class="small text-decoration-none">View logs</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-label">Today Payments</div>
+                    <h3 class="stat-value" th:text="${stats.todayPayments}">0</h3>
+                    <a href="/payments" class="small text-decoration-none">View payments</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-8">
+            <div class="card chart-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <div class="chart-title">Last 7 Days Income</div>
+                            <div class="chart-subtitle">Daily paid payment collection</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-large">
+                        <canvas id="incomeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card chart-card h-100">
+                <div class="card-body">
+                    <div class="chart-title">Member Status</div>
+                    <div class="chart-subtitle mb-3">Active, expired, and suspended members</div>
+
+                    <div class="chart-small">
+                        <canvas id="memberStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-8">
+            <div class="card chart-card">
+                <div class="card-body">
+                    <div class="chart-title">Last 7 Days Check-ins</div>
+                    <div class="chart-subtitle mb-3">Access scan activity trend</div>
+
+                    <div class="chart-large">
+                        <canvas id="checkInChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card chart-card h-100">
+                <div class="card-body">
+                    <div class="chart-title">Today Access Result</div>
+                    <div class="chart-subtitle mb-3">Granted vs denied access attempts</div>
+
+                    <div class="chart-small">
+                        <canvas id="accessResultChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Charts Row 3 -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-xl-4">
+            <div class="card chart-card h-100">
+                <div class="card-body">
+                    <div class="chart-title">Gender Distribution</div>
+                    <div class="chart-subtitle mb-3">Male and female member count</div>
+
+                    <div class="chart-small">
+                        <canvas id="genderChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-8">
+            <div class="card chart-card h-100">
+                <div class="card-body">
+                    <div class="chart-title mb-3">Quick Actions</div>
+
+                    <a href="/members" class="btn btn-primary module-btn me-2 mb-2">Members</a>
+                    <a href="/members/new" class="btn btn-outline-primary module-btn me-2 mb-2">Add Member</a>
+                    <a href="/plans" class="btn btn-secondary module-btn me-2 mb-2">Plans</a>
+                    <a href="/payments" class="btn btn-success module-btn me-2 mb-2">Payments</a>
+                    <a href="/payments/new" class="btn btn-outline-success module-btn me-2 mb-2">Add Payment</a>
+                    <a href="/access/scan" class="btn btn-warning module-btn me-2 mb-2">Access Scan</a>
+                    <a href="/access/logs" class="btn btn-dark module-btn me-2 mb-2">Access Logs</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    const last7DaysLabels = [[${stats.last7DaysLabels}]];
+    const last7DaysIncome = [[${stats.last7DaysIncome}]];
+    const last7DaysCheckIns = [[${stats.last7DaysCheckIns}]];
+
+    const activeMembers = [[${stats.activeMembers}]];
+    const expiredMembers = [[${stats.expiredMembers}]];
+    const suspendedMembers = [[${stats.suspendedMembers}]];
+
+    const maleMembers = [[${stats.maleMembers}]];
+    const femaleMembers = [[${stats.femaleMembers}]];
+    const otherGenderMembers = [[${stats.otherGenderMembers}]];
+
+    const todayAccessGranted = [[${stats.todayAccessGranted}]];
+    const todayAccessDenied = [[${stats.todayAccessDenied}]];
+
+    function updateClock() {
+        const now = new Date();
+
+        const hour = now.getHours();
+        let greeting = "Good Evening";
+
+        if (hour >= 5 && hour < 12) {
+            greeting = "Good Morning";
+        } else if (hour >= 12 && hour < 17) {
+            greeting = "Good Afternoon";
+        } else if (hour >= 17 && hour < 21) {
+            greeting = "Good Evening";
+        } else {
+            greeting = "Good Night";
+        }
+
+        document.getElementById("greetingText").textContent = greeting;
+
+        document.getElementById("liveTime").textContent = now.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+        });
+
+        document.getElementById("liveDate").textContent = now.toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        });
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: "bottom"
+            }
+        }
+    };
+
+    new Chart(document.getElementById("incomeChart"), {
+        type: "bar",
+        data: {
+            labels: last7DaysLabels,
+            datasets: [{
+                label: "Income Rs.",
+                data: last7DaysIncome,
+                borderWidth: 1,
+                borderRadius: 10
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById("memberStatusChart"), {
+        type: "doughnut",
+        data: {
+            labels: ["Active", "Expired", "Suspended"],
+            datasets: [{
+                data: [activeMembers, expiredMembers, suspendedMembers]
+            }]
+        },
+        options: {
+            ...commonOptions,
+            cutout: "65%"
+        }
+    });
+
+    new Chart(document.getElementById("checkInChart"), {
+        type: "line",
+        data: {
+            labels: last7DaysLabels,
+            datasets: [{
+                label: "Check-ins",
+                data: last7DaysCheckIns,
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById("accessResultChart"), {
+        type: "pie",
+        data: {
+            labels: ["Granted", "Denied"],
+            datasets: [{
+                data: [todayAccessGranted, todayAccessDenied]
+            }]
+        },
+        options: commonOptions
+    });
+
+    new Chart(document.getElementById("genderChart"), {
+        type: "doughnut",
+        data: {
+            labels: ["Male", "Female", "Other / Not Set"],
+            datasets: [{
+                data: [maleMembers, femaleMembers, otherGenderMembers]
+            }]
+        },
+        options: {
+            ...commonOptions,
+            cutout: "65%"
+        }
+    });
+</script>
+
+</body>
+</html>

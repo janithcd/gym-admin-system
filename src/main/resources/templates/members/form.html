@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Member Form')}"></head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/layout :: topbar('Member Form', 'Create or update gym member profile information')}"></div>
+
+        <div class="content-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0">Member Details</h5>
+                <a href="/members" class="btn btn-outline-secondary action-btn">Back to Members</a>
+            </div>
+
+            <form th:action="@{/members/save}" th:object="${member}" method="post">
+
+                <input type="hidden" th:field="*{id}">
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Member Code</label>
+                        <input type="text" class="form-control" th:field="*{memberCode}" required>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" th:field="*{fullName}" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" th:field="*{phone}" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">NIC</label>
+                        <input type="text" class="form-control" th:field="*{nic}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Gender</label>
+                        <select class="form-select" th:field="*{gender}">
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="date" class="form-control" th:field="*{dateOfBirth}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Height cm</label>
+                        <input type="number" step="0.01" class="form-control" th:field="*{heightCm}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Weight kg</label>
+                        <input type="number" step="0.01" class="form-control" th:field="*{weightKg}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Emergency Contact Name</label>
+                        <input type="text" class="form-control" th:field="*{emergencyContactName}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Emergency Contact Phone</label>
+                        <input type="text" class="form-control" th:field="*{emergencyContactPhone}">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-control" rows="3" th:field="*{address}"></textarea>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Medical Notes</label>
+                        <textarea class="form-control" rows="3" th:field="*{medicalNotes}"></textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" th:field="*{status}">
+                            <option th:each="status : ${statuses}"
+                                    th:value="${status}"
+                                    th:text="${status}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Device User ID</label>
+                        <input type="text" class="form-control" th:field="*{deviceUserId}">
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary action-btn">Save Member</button>
+                    <a href="/members" class="btn btn-outline-secondary action-btn">Cancel</a>
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

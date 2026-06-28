@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Access Logs')}"></head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/layout :: topbar('Access Logs', 'Review all granted and denied gym entrance attempts')}"></div>
+
+        <div class="content-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Access History</h5>
+                <a href="/access/scan" class="btn btn-warning action-btn">Access Scan</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Entered Code</th>
+                        <th>Member</th>
+                        <th>Access Status</th>
+                        <th>Reason</th>
+                        <th>Access Time</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="log : ${logs}">
+                        <td th:text="${log.id}"></td>
+
+                        <td>
+                            <strong th:text="${log.enteredMemberCode}">GYM001</strong>
+                        </td>
+
+                        <td>
+                            <div th:if="${log.member != null}">
+                                <strong th:text="${log.member.memberCode}">Code</strong><br>
+                                <span class="text-muted" th:text="${log.member.fullName}">Member Name</span>
+                            </div>
+
+                            <div th:if="${log.member == null}">
+                                <span class="text-muted">Unknown Member</span>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span th:if="${log.accessStatus.name() == 'GRANTED'}"
+                                  class="badge text-bg-success"
+                                  th:text="${log.accessStatus}">
+                            </span>
+
+                            <span th:if="${log.accessStatus.name() == 'DENIED'}"
+                                  class="badge text-bg-danger"
+                                  th:text="${log.accessStatus}">
+                            </span>
+                        </td>
+
+                        <td th:text="${log.reason}"></td>
+                        <td th:text="${log.accessTime}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Member Profile')}"></head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/layout :: topbar('Member Profile', 'View member details, payments, and access history')}"></div>
+
+        <!-- Profile Header -->
+        <div class="content-card mb-4">
+
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+
+                <div>
+                    <h3 class="mb-1" th:text="${member.fullName}">Member Name</h3>
+
+                    <p class="text-muted mb-2">
+                        <strong th:text="${member.memberCode}">GYM001</strong>
+                        |
+                        <span th:text="${member.phone}">Phone</span>
+                    </p>
+
+                    <div>
+                        <span th:if="${member.status.name() == 'ACTIVE'}"
+                              class="badge text-bg-success">
+                            ACTIVE
+                        </span>
+
+                        <span th:if="${member.status.name() == 'EXPIRED'}"
+                              class="badge text-bg-danger">
+                            EXPIRED
+                        </span>
+
+                        <span th:if="${member.status.name() == 'SUSPENDED'}"
+                              class="badge text-bg-warning">
+                            SUSPENDED
+                        </span>
+
+                        <span th:if="${hasActivePayment}"
+                              class="badge text-bg-primary">
+                            ACCESS ALLOWED
+                        </span>
+
+                        <span th:if="${!hasActivePayment}"
+                              class="badge text-bg-danger">
+                            ACCESS BLOCKED
+                        </span>
+                    </div>
+                </div>
+
+                <div>
+                    <a th:href="@{/members/edit/{id}(id=${member.id})}"
+                       class="btn btn-primary action-btn">
+                        Edit Member
+                    </a>
+
+                    <a href="/members"
+                       class="btn btn-outline-secondary action-btn">
+                        Back
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+                <div class="content-card h-100">
+                    <p class="text-muted mb-1">Latest Plan</p>
+
+                    <h5 th:if="${latestPayment != null}"
+                        th:text="${latestPayment.membershipPlan.planName}">
+                        Monthly
+                    </h5>
+
+                    <h5 th:if="${latestPayment == null}">
+                        No payment yet
+                    </h5>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="content-card h-100">
+                    <p class="text-muted mb-1">Latest Expiry Date</p>
+
+                    <h5 th:if="${latestPayment != null}"
+                        th:text="${latestPayment.expiryDate}">
+                        Expiry
+                    </h5>
+
+                    <h5 th:if="${latestPayment == null}">
+                        N/A
+                    </h5>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="content-card h-100">
+                    <p class="text-muted mb-1">Access Status</p>
+
+                    <h5 th:if="${hasActivePayment}" class="text-success">
+                        Can Enter Gym
+                    </h5>
+
+                    <h5 th:if="${!hasActivePayment}" class="text-danger">
+                        Cannot Enter Gym
+                    </h5>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Member Details -->
+        <div class="content-card mb-4">
+
+            <h5 class="mb-3">Personal Details</h5>
+
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    <p class="text-muted mb-1">NIC</p>
+                    <strong th:text="${member.nic}">NIC</strong>
+                </div>
+
+                <div class="col-md-3">
+                    <p class="text-muted mb-1">Gender</p>
+                    <strong th:text="${member.gender}">Gender</strong>
+                </div>
+
+                <div class="col-md-3">
+                    <p class="text-muted mb-1">Age</p>
+                    <strong th:text="${member.age}">Age</strong>
+                </div>
+
+                <div class="col-md-3">
+                    <p class="text-muted mb-1">Joined Date</p>
+                    <strong th:text="${member.joinedDate}">Joined</strong>
+                </div>
+
+                <div class="col-md-3">
+                    <p class="text-muted mb-1">Height</p>
+                    <strong>
+                        <span th:text="${member.heightCm}">0</span> cm
+                    </strong>
+                </div>
+
+                <div class="col-md-3">
+                    <p class="text-muted mb-1">Weight</p>
+                    <strong>
+                        <span th:text="${member.weightKg}">0</span> kg
+                    </strong>
+                </div>
+
+                <div class="col-md-3">
+                    <p class="text-muted mb-1">Device User ID</p>
+                    <strong th:text="${member.deviceUserId}">Device</strong>
+                </div>
+
+                <div class="col-md-3">
+                    <p class="text-muted mb-1">Emergency Phone</p>
+                    <strong th:text="${member.emergencyContactPhone}">Emergency</strong>
+                </div>
+
+                <div class="col-md-6">
+                    <p class="text-muted mb-1">Address</p>
+                    <strong th:text="${member.address}">Address</strong>
+                </div>
+
+                <div class="col-md-6">
+                    <p class="text-muted mb-1">Medical Notes</p>
+                    <strong th:text="${member.medicalNotes}">Medical notes</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Payment History -->
+        <div class="content-card mb-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Payment History</h5>
+                <a href="/payments/new" class="btn btn-success btn-sm action-btn">Add Payment</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Plan</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Payment Date</th>
+                        <th>Start Date</th>
+                        <th>Expiry Date</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="payment : ${payments}">
+                        <td th:text="${payment.id}"></td>
+                        <td th:text="${payment.membershipPlan.planName}"></td>
+                        <td>Rs. <span th:text="${payment.amount}"></span></td>
+                        <td th:text="${payment.paymentMethod}"></td>
+                        <td th:text="${payment.paymentDate}"></td>
+                        <td th:text="${payment.startDate}"></td>
+                        <td th:text="${payment.expiryDate}"></td>
+
+                        <td>
+                            <span th:if="${payment.status.name() == 'PAID'}"
+                                  class="badge text-bg-success">
+                                PAID
+                            </span>
+
+                            <span th:if="${payment.status.name() == 'CANCELLED'}"
+                                  class="badge text-bg-danger">
+                                CANCELLED
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${payments.isEmpty()}">
+                        <td colspan="8" class="text-center text-muted">
+                            No payment records found.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Access History -->
+        <div class="content-card">
+
+            <h5 class="mb-3">Access History</h5>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Entered Code</th>
+                        <th>Access Status</th>
+                        <th>Reason</th>
+                        <th>Access Time</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="log : ${accessLogs}">
+                        <td th:text="${log.id}"></td>
+                        <td th:text="${log.enteredMemberCode}"></td>
+
+                        <td>
+                            <span th:if="${log.accessStatus.name() == 'GRANTED'}"
+                                  class="badge text-bg-success">
+                                GRANTED
+                            </span>
+
+                            <span th:if="${log.accessStatus.name() == 'DENIED'}"
+                                  class="badge text-bg-danger">
+                                DENIED
+                            </span>
+                        </td>
+
+                        <td th:text="${log.reason}"></td>
+                        <td th:text="${log.accessTime}"></td>
+                    </tr>
+
+                    <tr th:if="${accessLogs.isEmpty()}">
+                        <td colspan="5" class="text-center text-muted">
+                            No access logs found.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

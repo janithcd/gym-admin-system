@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Admin Form')}"></head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/layout :: topbar('Admin Account Form', 'Create or update administrator login details')}"></div>
+
+        <div class="content-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0">Admin Details</h5>
+                <a href="/admins" class="btn btn-outline-secondary action-btn">Back to Admins</a>
+            </div>
+
+            <form th:action="@{/admins/save}" th:object="${adminUser}" method="post">
+
+                <input type="hidden" th:field="*{id}">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" th:field="*{fullName}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Username</label>
+                        <input type="text"
+                               class="form-control"
+                               th:field="*{username}"
+                               th:readonly="*{id != null}"
+                               required>
+                        <small class="text-muted">Username cannot be changed after account creation.</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" th:field="*{email}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Password</label>
+                        <input type="password"
+                               class="form-control"
+                               th:field="*{password}"
+                               placeholder="Leave empty when editing to keep old password">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" th:field="*{role}" required>
+                            <option th:each="role : ${roles}"
+                                    th:value="${role}"
+                                    th:text="${role}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Account Status</label>
+                        <select class="form-select" th:field="*{enabled}">
+                            <option th:value="true">Enabled</option>
+                            <option th:value="false">Disabled</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary action-btn">Save Admin</button>
+                    <a href="/admins" class="btn btn-outline-secondary action-btn">Cancel</a>
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

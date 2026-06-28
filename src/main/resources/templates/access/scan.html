@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Access Scan')}"></head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/layout :: topbar('Access Control Scan', 'Simulate fingerprint or face recognition access checking')}"></div>
+
+        <div class="content-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h5 class="mb-1">Scan Member</h5>
+                    <p class="text-muted mb-0">
+                        Enter the member code to check whether the member can enter the gym.
+                    </p>
+                </div>
+
+                <a href="/access/logs" class="btn btn-dark action-btn">View Access Logs</a>
+            </div>
+
+            <div class="scan-box">
+
+                <form th:action="@{/access/check}" method="post">
+
+                    <label class="form-label">Member Code</label>
+                    <input type="text"
+                           name="memberCode"
+                           class="form-control scan-input"
+                           placeholder="Example: GYM001"
+                           required
+                           autofocus>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-warning action-btn">
+                            Check Access
+                        </button>
+
+                        <a href="/access/scan" class="btn btn-outline-secondary action-btn">
+                            Clear
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- Access Result -->
+            <div th:if="${result != null}">
+
+                <div th:classappend="${result.accessStatus.name() == 'GRANTED'} ? 'access-granted' : 'access-denied'"
+                     class="access-result-card">
+
+                    <div class="access-result-title"
+                         th:text="${result.accessStatus.name() == 'GRANTED'} ? 'ACCESS GRANTED' : 'ACCESS DENIED'">
+                        ACCESS RESULT
+                    </div>
+
+                    <p class="mb-3" th:text="${result.reason}">
+                        Result reason
+                    </p>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+                            <div class="bg-white rounded-3 p-3">
+                                <div class="text-muted small">Entered Code</div>
+                                <strong th:text="${result.enteredMemberCode}">GYM001</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4" th:if="${result.member != null}">
+                            <div class="bg-white rounded-3 p-3">
+                                <div class="text-muted small">Member Name</div>
+                                <strong th:text="${result.member.fullName}">Member Name</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4" th:if="${result.member != null}">
+                            <div class="bg-white rounded-3 p-3">
+                                <div class="text-muted small">Phone</div>
+                                <strong th:text="${result.member.phone}">Phone</strong>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4" th:if="${result.member != null}">
+                            <div class="bg-white rounded-3 p-3">
+                                <div class="text-muted small">Current Status</div>
+
+                                <span th:if="${result.member.status.name() == 'ACTIVE'}"
+                                      class="badge text-bg-success status-badge-large"
+                                      th:text="${result.member.status}">
+                                </span>
+
+                                <span th:if="${result.member.status.name() == 'EXPIRED'}"
+                                      class="badge text-bg-danger status-badge-large"
+                                      th:text="${result.member.status}">
+                                </span>
+
+                                <span th:if="${result.member.status.name() == 'SUSPENDED'}"
+                                      class="badge text-bg-warning status-badge-large"
+                                      th:text="${result.member.status}">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="bg-white rounded-3 p-3">
+                                <div class="text-muted small">Access Time</div>
+                                <strong th:text="${result.accessTime}">Time</strong>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>
