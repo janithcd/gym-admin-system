@@ -11,13 +11,97 @@
 
     <main class="main-content">
 
-        <div th:replace="~{fragments/layout :: topbar('Members', 'Manage gym member details and access status')}"></div>
+        <div th:replace="~{fragments/layout :: topbar('Members', 'Manage gym members and membership status')}"></div>
 
+        <!-- Search Filter Card -->
+        <div class="content-card mb-4">
+
+            <form th:action="@{/members}" method="get" class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+                    <label class="form-label">Search Member</label>
+                    <input type="text"
+                           name="keyword"
+                           class="form-control"
+                           placeholder="Code, name, phone, NIC"
+                           th:value="${selectedKeyword}">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+
+                        <option th:each="status : ${statuses}"
+                                th:value="${status}"
+                                th:text="${status}"
+                                th:selected="${selectedStatus == status.name()}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Gender</label>
+                    <select name="gender" class="form-select">
+                        <option value="">All Genders</option>
+                        <option value="Male" th:selected="${selectedGender == 'Male'}">Male</option>
+                        <option value="Female" th:selected="${selectedGender == 'Female'}">Female</option>
+                        <option value="Other" th:selected="${selectedGender == 'Other'}">Other</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Rows</label>
+                    <select name="size" class="form-select">
+                        <option value="5" th:selected="${pageSize == 5}">5</option>
+                        <option value="10" th:selected="${pageSize == 10}">10</option>
+                        <option value="20" th:selected="${pageSize == 20}">20</option>
+                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                    </select>
+                </div>
+
+                <input type="hidden" name="page" value="0">
+
+                <div class="col-md-12 d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn btn-dark action-btn">
+                        Search
+                    </button>
+
+                    <a href="/members" class="btn btn-outline-secondary action-btn">
+                        Clear Filters
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+
+        <!-- Member List Card -->
         <div class="content-card">
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0">Member List</h5>
-                <a href="/members/new" class="btn btn-primary action-btn">Add New Member</a>
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+
+                <div>
+                    <h5 class="mb-0">Member List</h5>
+                    <p class="text-muted mb-0">
+                        Showing
+                        <strong th:text="${members.size()}">0</strong>
+                        of
+                        <strong th:text="${totalItems}">0</strong>
+                        member(s)
+                    </p>
+                </div>
+
+                <div>
+                    <a href="/members/refresh-statuses" class="btn btn-outline-dark action-btn">
+                        Refresh Statuses
+                    </a>
+
+                    <a href="/members/new" class="btn btn-primary action-btn">
+                        Add New Member
+                    </a>
+                </div>
+
             </div>
 
             <div class="table-responsive">
@@ -25,16 +109,14 @@
                     <thead class="table-dark">
                     <tr>
                         <th>ID</th>
-                        <th>Code</th>
+                        <th>Member Code</th>
                         <th>Full Name</th>
                         <th>Phone</th>
                         <th>NIC</th>
                         <th>Gender</th>
                         <th>Age</th>
-                        <th>Height</th>
-                        <th>Weight</th>
+                        <th>Joined Date</th>
                         <th>Status</th>
-                        <th>Joined</th>
                         <th>Device ID</th>
                         <th>Actions</th>
                     </tr>
@@ -43,34 +125,36 @@
                     <tbody>
                     <tr th:each="member : ${members}">
                         <td th:text="${member.id}"></td>
-                        <td th:text="${member.memberCode}"></td>
+
+                        <td>
+                            <strong th:text="${member.memberCode}"></strong>
+                        </td>
+
                         <td th:text="${member.fullName}"></td>
                         <td th:text="${member.phone}"></td>
                         <td th:text="${member.nic}"></td>
                         <td th:text="${member.gender}"></td>
-                        <td th:text="${member.age}"></td>
-                        <td th:text="${member.heightCm}"></td>
-                        <td th:text="${member.weightKg}"></td>
+                        <td th:text="${member.age != null ? member.age : '-'}"></td>
+                        <td th:text="${member.joinedDate}"></td>
 
                         <td>
                             <span th:if="${member.status.name() == 'ACTIVE'}"
-                                  class="badge text-bg-success"
-                                  th:text="${member.status}">
+                                  class="badge text-bg-success">
+                                ACTIVE
                             </span>
 
                             <span th:if="${member.status.name() == 'EXPIRED'}"
-                                  class="badge text-bg-danger"
-                                  th:text="${member.status}">
+                                  class="badge text-bg-danger">
+                                EXPIRED
                             </span>
 
                             <span th:if="${member.status.name() == 'SUSPENDED'}"
-                                  class="badge text-bg-warning"
-                                  th:text="${member.status}">
+                                  class="badge text-bg-warning">
+                                SUSPENDED
                             </span>
                         </td>
 
-                        <td th:text="${member.joinedDate}"></td>
-                        <td th:text="${member.deviceUserId}"></td>
+                        <td th:text="${member.deviceUserId != null ? member.deviceUserId : '-'}"></td>
 
                         <td>
                             <a th:href="@{/members/view/{id}(id=${member.id})}"
@@ -85,13 +169,83 @@
 
                             <a th:href="@{/members/delete/{id}(id=${member.id})}"
                                class="btn btn-sm btn-outline-danger"
-                               onclick="return confirm('Are you sure you want to delete this member?')">
+                               data-swal-confirm="true"
+                               data-swal-title="Delete member?"
+                               data-swal-text="This member will be permanently deleted."
+                               data-swal-confirm-button="Yes, delete">
                                 Delete
                             </a>
                         </td>
                     </tr>
+
+                    <tr th:if="${members.isEmpty()}">
+                        <td colspan="11" class="text-center text-muted">
+                            No members found for the selected filters.
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
+
+                <div class="text-muted">
+                    Page
+                    <strong th:text="${currentPage + 1}">1</strong>
+                    of
+                    <strong th:text="${totalPages}">1</strong>
+                </div>
+
+                <nav>
+                    <ul class="pagination mb-0">
+
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/members(
+                                    page=${currentPage - 1},
+                                    size=${pageSize},
+                                    keyword=${selectedKeyword},
+                                    status=${selectedStatus},
+                                    gender=${selectedGender}
+                               )}">
+                                Previous
+                            </a>
+                        </li>
+
+                        <li class="page-item"
+                            th:each="pageNumber : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${pageNumber == currentPage} ? 'active'">
+
+                            <a class="page-link"
+                               th:text="${pageNumber + 1}"
+                               th:href="@{/members(
+                                    page=${pageNumber},
+                                    size=${pageSize},
+                                    keyword=${selectedKeyword},
+                                    status=${selectedStatus},
+                                    gender=${selectedGender}
+                               )}">
+                                1
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/members(
+                                    page=${currentPage + 1},
+                                    size=${pageSize},
+                                    keyword=${selectedKeyword},
+                                    status=${selectedStatus},
+                                    gender=${selectedGender}
+                               )}">
+                                Next
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+
             </div>
 
         </div>

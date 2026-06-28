@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Reports')}"></head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/layout :: topbar('Reports', 'View income, members, and gym access reports')}"></div>
+
+        <div class="row g-3">
+
+            <div class="col-md-6 col-xl-3">
+                <div class="content-card h-100">
+                    <h5>Daily Income</h5>
+                    <p class="text-muted">View payments and total income for a selected day.</p>
+                    <a href="/reports/daily-income" class="btn btn-primary action-btn">Open Report</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="content-card h-100">
+                    <h5>Monthly Income</h5>
+                    <p class="text-muted">View total income and payments for a selected month.</p>
+                    <a href="/reports/monthly-income" class="btn btn-success action-btn">Open Report</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="content-card h-100">
+                    <h5>Expired Members</h5>
+                    <p class="text-muted">Find members who need to renew their membership.</p>
+                    <a href="/reports/expired-members" class="btn btn-danger action-btn">Open Report</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <div class="content-card h-100">
+                    <h5>Access Report</h5>
+                    <p class="text-muted">View granted and denied gym entrance attempts.</p>
+                    <a href="/reports/access-report" class="btn btn-dark action-btn">Open Report</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CSV Export Card -->
+        <div class="content-card mt-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                    <h5 class="mb-0">CSV Export</h5>
+                    <p class="text-muted mb-0">
+                        Download gym reports as CSV files for Excel or Google Sheets.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <a href="/reports/export/members"
+                       class="btn btn-outline-dark action-btn w-100">
+                        Export All Members
+                    </a>
+                </div>
+
+                <div class="col-md-4">
+                    <a href="/reports/export/members/active"
+                       class="btn btn-outline-success action-btn w-100">
+                        Export Active Members
+                    </a>
+                </div>
+
+                <div class="col-md-4">
+                    <a href="/reports/export/members/expired"
+                       class="btn btn-outline-danger action-btn w-100">
+                        Export Expired Members
+                    </a>
+                </div>
+
+                <div class="col-md-6">
+                    <a href="/reports/export/payments"
+                       class="btn btn-outline-primary action-btn w-100">
+                        Export Payments
+                    </a>
+                </div>
+
+                <div class="col-md-6">
+                    <a href="/reports/export/access-logs"
+                       class="btn btn-outline-secondary action-btn w-100">
+                        Export Access Logs
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

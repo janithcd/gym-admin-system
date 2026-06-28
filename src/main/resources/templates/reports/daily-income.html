@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Daily Income Report')}"></head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/layout :: topbar('Daily Income Report', 'View payment collection by selected date')}"></div>
+
+        <div class="content-card mb-4">
+
+            <form th:action="@{/reports/daily-income}" method="get" class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+                    <label class="form-label">Select Date</label>
+                    <input type="date"
+                           name="date"
+                           class="form-control"
+                           th:value="${selectedDate}">
+                </div>
+
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary action-btn">Generate Report</button>
+                    <a href="/reports" class="btn btn-outline-secondary action-btn">Back</a>
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-6">
+                <div class="content-card">
+                    <p class="text-muted mb-1">Total Payments</p>
+                    <h3 th:text="${summary.totalPayments}">0</h3>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="content-card">
+                    <p class="text-muted mb-1">Total Income</p>
+                    <h3>Rs. <span th:text="${summary.totalIncome}">0.00</span></h3>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="content-card">
+
+            <h5 class="mb-3">Payment Records</h5>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Member</th>
+                        <th>Plan</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Payment Date</th>
+                        <th>Expiry Date</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="payment : ${payments}">
+                        <td th:text="${payment.id}"></td>
+
+                        <td>
+                            <strong th:text="${payment.member.memberCode}"></strong><br>
+                            <span class="text-muted" th:text="${payment.member.fullName}"></span>
+                        </td>
+
+                        <td th:text="${payment.membershipPlan.planName}"></td>
+                        <td>Rs. <span th:text="${payment.amount}"></span></td>
+                        <td th:text="${payment.paymentMethod}"></td>
+                        <td th:text="${payment.paymentDate}"></td>
+                        <td th:text="${payment.expiryDate}"></td>
+
+                        <td>
+                            <span class="badge text-bg-success" th:text="${payment.status}"></span>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${payments.isEmpty()}">
+                        <td colspan="8" class="text-center text-muted">
+                            No payments found for this date.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

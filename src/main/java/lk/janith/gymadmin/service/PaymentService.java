@@ -3,11 +3,10 @@ package lk.janith.gymadmin.service;
 import lk.janith.gymadmin.entity.*;
 import lk.janith.gymadmin.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import lk.janith.gymadmin.entity.Member;
-import lk.janith.gymadmin.entity.Payment;
-import lk.janith.gymadmin.entity.PaymentStatus;
-import java.util.List;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -23,14 +22,44 @@ public class PaymentService {
     public List<Payment> getAllPayments() {
         return paymentRepository.findAll();
     }
-    public List<Payment> getPaymentsByMember(Member member) {
-        return paymentRepository.findByMemberOrderByExpiryDateDesc(member);
-    }
 
-    public Payment getLatestPaidPayment(Member member) {
-        return paymentRepository
-                .findTopByMemberAndStatusOrderByExpiryDateDesc(member, PaymentStatus.PAID)
-                .orElse(null);
+    public Page<Payment> searchPayments(String keyword,
+                                        String paymentMethodText,
+                                        String statusText,
+                                        LocalDate startDate,
+                                        LocalDate endDate,
+                                        int page,
+                                        int size) {
+
+        String cleanKeyword = normalizeText(keyword);
+
+        PaymentMethod paymentMethod = null;
+        PaymentStatus status = null;
+
+        if (paymentMethodText != null && !paymentMethodText.isBlank()) {
+            paymentMethod = PaymentMethod.valueOf(paymentMethodText);
+        }
+
+        if (statusText != null && !statusText.isBlank()) {
+            status = PaymentStatus.valueOf(statusText);
+        }
+
+        if (page < 0) {
+            page = 0;
+        }
+
+        if (size <= 0) {
+            size = 10;
+        }
+
+        return paymentRepository.searchPayments(
+                cleanKeyword,
+                paymentMethod,
+                status,
+                startDate,
+                endDate,
+                PageRequest.of(page, size)
+        );
     }
 
     public Payment recordPayment(Long memberId,
@@ -95,5 +124,23 @@ public class PaymentService {
                 .findTopByMemberAndStatusOrderByExpiryDateDesc(member, PaymentStatus.PAID)
                 .map(payment -> !payment.getExpiryDate().isBefore(LocalDate.now()))
                 .orElse(false);
+    }
+
+    public List<Payment> getPaymentsByMember(Member member) {
+        return paymentRepository.findByMemberOrderByExpiryDateDesc(member);
+    }
+
+    public Payment getLatestPaidPayment(Member member) {
+        return paymentRepository
+                .findTopByMemberAndStatusOrderByExpiryDateDesc(member, PaymentStatus.PAID)
+                .orElse(null);
+    }
+
+    private String normalizeText(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+
+        return value.trim();
     }
 }

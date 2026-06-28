@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Expired Members Report')}"></head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/layout :: topbar('Expired Members Report', 'Members whose payments have expired or have no active membership')}"></div>
+
+        <div class="content-card">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="mb-0">Expired Members</h5>
+                    <p class="text-muted mb-0">Total expired members: <strong th:text="${members.size()}">0</strong></p>
+                </div>
+
+                <a href="/reports" class="btn btn-outline-secondary action-btn">Back to Reports</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Member Code</th>
+                        <th>Full Name</th>
+                        <th>Phone</th>
+                        <th>NIC</th>
+                        <th>Gender</th>
+                        <th>Joined Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="member : ${members}">
+                        <td th:text="${member.id}"></td>
+                        <td th:text="${member.memberCode}"></td>
+                        <td th:text="${member.fullName}"></td>
+                        <td th:text="${member.phone}"></td>
+                        <td th:text="${member.nic}"></td>
+                        <td th:text="${member.gender}"></td>
+                        <td th:text="${member.joinedDate}"></td>
+
+                        <td>
+                            <span class="badge text-bg-danger" th:text="${member.status}"></span>
+                        </td>
+
+                        <td>
+                            <a th:href="@{/members/view/{id}(id=${member.id})}"
+                               class="btn btn-sm btn-outline-dark">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${members.isEmpty()}">
+                        <td colspan="9" class="text-center text-muted">
+                            No expired members found.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

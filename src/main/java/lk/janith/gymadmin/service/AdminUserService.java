@@ -51,17 +51,7 @@ public class AdminUserService {
     }
 
     private void createAdmin(AdminUserDTO dto) {
-        if (adminUserRepository.existsByUsername(dto.getUsername())) {
-            throw new RuntimeException("Username already exists");
-        }
-
-        if (adminUserRepository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-
-        if (dto.getPassword() == null || dto.getPassword().isBlank()) {
-            throw new RuntimeException("Password is required for new admin");
-        }
+        validateAdmin(dto, true);
 
         AdminUser admin = new AdminUser();
         admin.setFullName(dto.getFullName());
@@ -75,6 +65,8 @@ public class AdminUserService {
     }
 
     private void updateAdmin(AdminUserDTO dto) {
+        validateAdmin(dto, false);
+
         AdminUser existingAdmin = getAdminById(dto.getId());
 
         existingAdmin.setFullName(dto.getFullName());
@@ -83,10 +75,54 @@ public class AdminUserService {
         existingAdmin.setEnabled(dto.isEnabled());
 
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            if (dto.getPassword().length() < 6) {
+                throw new RuntimeException("Password must be at least 6 characters.");
+            }
+
             existingAdmin.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
         adminUserRepository.save(existingAdmin);
+    }
+
+    private void validateAdmin(AdminUserDTO dto, boolean creatingNewAdmin) {
+        if (dto.getFullName() == null || dto.getFullName().isBlank()) {
+            throw new RuntimeException("Full name is required.");
+        }
+
+        if (dto.getUsername() == null || dto.getUsername().isBlank()) {
+            throw new RuntimeException("Username is required.");
+        }
+
+        if (dto.getEmail() == null || dto.getEmail().isBlank()) {
+            throw new RuntimeException("Email is required.");
+        }
+
+        if (dto.getRole() == null) {
+            throw new RuntimeException("Admin role is required.");
+        }
+
+        if (creatingNewAdmin && (dto.getPassword() == null || dto.getPassword().isBlank())) {
+            throw new RuntimeException("Password is required for new admin.");
+        }
+
+        if (dto.getPassword() != null && !dto.getPassword().isBlank() && dto.getPassword().length() < 6) {
+            throw new RuntimeException("Password must be at least 6 characters.");
+        }
+
+        adminUserRepository.findByUsername(dto.getUsername())
+                .ifPresent(existingAdmin -> {
+                    if (dto.getId() == null || !existingAdmin.getId().equals(dto.getId())) {
+                        throw new RuntimeException("Username already exists.");
+                    }
+                });
+
+        adminUserRepository.findByEmail(dto.getEmail())
+                .ifPresent(existingAdmin -> {
+                    if (dto.getId() == null || !existingAdmin.getId().equals(dto.getId())) {
+                        throw new RuntimeException("Email already exists.");
+                    }
+                });
     }
 
     public void deleteAdmin(Long id, String currentUsername) {

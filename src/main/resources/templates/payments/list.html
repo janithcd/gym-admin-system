@@ -11,13 +11,114 @@
 
     <main class="main-content">
 
-        <div th:replace="~{fragments/layout :: topbar('Payments', 'Track member payments, renewals, and membership expiry')}"></div>
+        <div th:replace="~{fragments/layout :: topbar('Payments', 'Manage member payments and receipts')}"></div>
 
+        <!-- Search Filter Card -->
+        <div class="content-card mb-4">
+
+            <form th:action="@{/payments}" method="get" class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+                    <label class="form-label">Search Payment</label>
+                    <input type="text"
+                           name="keyword"
+                           class="form-control"
+                           placeholder="Member code, name, phone, NIC"
+                           th:value="${selectedKeyword}">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Method</label>
+                    <select name="paymentMethod" class="form-select">
+                        <option value="">All Methods</option>
+
+                        <option th:each="method : ${paymentMethods}"
+                                th:value="${method}"
+                                th:text="${method}"
+                                th:selected="${selectedPaymentMethod == method.name()}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+
+                        <option th:each="status : ${paymentStatuses}"
+                                th:value="${status}"
+                                th:text="${status}"
+                                th:selected="${selectedStatus == status.name()}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Start Date</label>
+                    <input type="date"
+                           name="startDate"
+                           class="form-control"
+                           th:value="${selectedStartDate}">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">End Date</label>
+                    <input type="date"
+                           name="endDate"
+                           class="form-control"
+                           th:value="${selectedEndDate}">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Rows</label>
+                    <select name="size" class="form-select">
+                        <option value="5" th:selected="${pageSize == 5}">5</option>
+                        <option value="10" th:selected="${pageSize == 10}">10</option>
+                        <option value="20" th:selected="${pageSize == 20}">20</option>
+                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                    </select>
+                </div>
+
+                <input type="hidden" name="page" value="0">
+
+                <div class="col-md-12 d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn btn-dark action-btn">
+                        Search
+                    </button>
+
+                    <a href="/payments" class="btn btn-outline-secondary action-btn">
+                        Clear Filters
+                    </a>
+
+                    <a href="/payments/new" class="btn btn-primary action-btn">
+                        Add Payment
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+
+        <!-- Payment List Card -->
         <div class="content-card">
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0">Payment Records</h5>
-                <a href="/payments/new" class="btn btn-success action-btn">Add New Payment</a>
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+
+                <div>
+                    <h5 class="mb-0">Payment List</h5>
+                    <p class="text-muted mb-0">
+                        Showing
+                        <strong th:text="${payments.size()}">0</strong>
+                        of
+                        <strong th:text="${totalItems}">0</strong>
+                        payment(s)
+                    </p>
+                </div>
+
+                <a href="/payments/new" class="btn btn-primary action-btn">
+                    Add New Payment
+                </a>
+
             </div>
 
             <div class="table-responsive">
@@ -30,8 +131,8 @@
                         <th>Amount</th>
                         <th>Method</th>
                         <th>Payment Date</th>
-                        <th>Start</th>
-                        <th>Expiry</th>
+                        <th>Start Date</th>
+                        <th>Expiry Date</th>
                         <th>Status</th>
                         <th>Note</th>
                         <th>Actions</th>
@@ -43,12 +144,18 @@
                         <td th:text="${payment.id}"></td>
 
                         <td>
-                            <strong th:text="${payment.member.memberCode}"></strong><br>
-                            <span class="text-muted" th:text="${payment.member.fullName}"></span>
+                            <strong th:text="${payment.member.memberCode}">GYM001</strong><br>
+                            <span th:text="${payment.member.fullName}">Member Name</span><br>
+                            <small class="text-muted" th:text="${payment.member.phone}">Phone</small>
                         </td>
 
                         <td th:text="${payment.membershipPlan.planName}"></td>
-                        <td>Rs. <span th:text="${payment.amount}"></span></td>
+
+                        <td>
+                            Rs.
+                            <span th:text="${payment.amount}"></span>
+                        </td>
+
                         <td th:text="${payment.paymentMethod}"></td>
                         <td th:text="${payment.paymentDate}"></td>
                         <td th:text="${payment.startDate}"></td>
@@ -56,17 +163,17 @@
 
                         <td>
                             <span th:if="${payment.status.name() == 'PAID'}"
-                                  class="badge text-bg-success"
-                                  th:text="${payment.status}">
+                                  class="badge text-bg-success">
+                                PAID
                             </span>
 
                             <span th:if="${payment.status.name() == 'CANCELLED'}"
-                                  class="badge text-bg-danger"
-                                  th:text="${payment.status}">
+                                  class="badge text-bg-danger">
+                                CANCELLED
                             </span>
                         </td>
 
-                        <td th:text="${payment.note}"></td>
+                        <td th:text="${payment.note != null && payment.note != '' ? payment.note : '-'}"></td>
 
                         <td>
                             <a th:href="@{/payments/receipt/{id}(id=${payment.id})}"
@@ -74,21 +181,105 @@
                                 Receipt
                             </a>
 
+                            <a th:href="@{/members/view/{id}(id=${payment.member.id})}"
+                               class="btn btn-sm btn-outline-primary">
+                                Member
+                            </a>
+
                             <a th:href="@{/payments/cancel/{id}(id=${payment.id})}"
                                class="btn btn-sm btn-outline-warning"
-                               onclick="return confirm('Are you sure you want to cancel this payment?')">
+                               data-swal-confirm="true"
+                               data-swal-title="Cancel payment?"
+                               data-swal-text="This payment will be marked as cancelled."
+                               data-swal-confirm-button="Yes, cancel">
                                 Cancel
                             </a>
 
                             <a th:href="@{/payments/delete/{id}(id=${payment.id})}"
                                class="btn btn-sm btn-outline-danger"
-                               onclick="return confirm('Are you sure you want to delete this payment?')">
+                               data-swal-confirm="true"
+                               data-swal-title="Delete payment?"
+                               data-swal-text="This payment record will be permanently deleted."
+                               data-swal-confirm-button="Yes, delete">
                                 Delete
                             </a>
                         </td>
                     </tr>
+
+                    <tr th:if="${payments.isEmpty()}">
+                        <td colspan="11" class="text-center text-muted">
+                            No payments found for the selected filters.
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
+
+                <div class="text-muted">
+                    Page
+                    <strong th:text="${currentPage + 1}">1</strong>
+                    of
+                    <strong th:text="${totalPages}">1</strong>
+                </div>
+
+                <nav>
+                    <ul class="pagination mb-0">
+
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/payments(
+                                    page=${currentPage - 1},
+                                    size=${pageSize},
+                                    keyword=${selectedKeyword},
+                                    paymentMethod=${selectedPaymentMethod},
+                                    status=${selectedStatus},
+                                    startDate=${selectedStartDate},
+                                    endDate=${selectedEndDate}
+                               )}">
+                                Previous
+                            </a>
+                        </li>
+
+                        <li class="page-item"
+                            th:each="pageNumber : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${pageNumber == currentPage} ? 'active'">
+
+                            <a class="page-link"
+                               th:text="${pageNumber + 1}"
+                               th:href="@{/payments(
+                                    page=${pageNumber},
+                                    size=${pageSize},
+                                    keyword=${selectedKeyword},
+                                    paymentMethod=${selectedPaymentMethod},
+                                    status=${selectedStatus},
+                                    startDate=${selectedStartDate},
+                                    endDate=${selectedEndDate}
+                               )}">
+                                1
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/payments(
+                                    page=${currentPage + 1},
+                                    size=${pageSize},
+                                    keyword=${selectedKeyword},
+                                    paymentMethod=${selectedPaymentMethod},
+                                    status=${selectedStatus},
+                                    startDate=${selectedStartDate},
+                                    endDate=${selectedEndDate}
+                               )}">
+                                Next
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+
             </div>
 
         </div>

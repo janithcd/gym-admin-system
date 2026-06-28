@@ -5,8 +5,11 @@ import lk.janith.gymadmin.entity.*;
 import lk.janith.gymadmin.repository.AccessLogRepository;
 import lk.janith.gymadmin.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -87,6 +90,49 @@ public class AccessControlService {
         return accessLogRepository.findByMemberOrderByAccessTimeDesc(member);
     }
 
+    public Page<AccessLog> searchAccessLogs(String keyword,
+                                            String accessStatusText,
+                                            LocalDate startDate,
+                                            LocalDate endDate,
+                                            int page,
+                                            int size) {
+
+        String cleanKeyword = normalizeText(keyword);
+
+        AccessStatus accessStatus = null;
+
+        if (accessStatusText != null && !accessStatusText.isBlank()) {
+            accessStatus = AccessStatus.valueOf(accessStatusText);
+        }
+
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = null;
+
+        if (startDate != null) {
+            startDateTime = startDate.atStartOfDay();
+        }
+
+        if (endDate != null) {
+            endDateTime = endDate.plusDays(1).atStartOfDay().minusNanos(1);
+        }
+
+        if (page < 0) {
+            page = 0;
+        }
+
+        if (size <= 0) {
+            size = 10;
+        }
+
+        return accessLogRepository.searchAccessLogs(
+                cleanKeyword,
+                accessStatus,
+                startDateTime,
+                endDateTime,
+                PageRequest.of(page, size)
+        );
+    }
+
     private AccessCheckResult saveAndReturnResult(Member member,
                                                   String enteredMemberCode,
                                                   AccessStatus accessStatus,
@@ -108,5 +154,13 @@ public class AccessControlService {
                 reason,
                 accessLog.getAccessTime()
         );
+    }
+
+    private String normalizeText(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+
+        return value.trim();
     }
 }

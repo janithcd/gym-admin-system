@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Admin Profile')}"></head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/layout :: topbar('Admin Profile', 'View your administrator account details')}"></div>
+
+        <div class="row g-4">
+
+            <!-- Profile Card -->
+            <div class="col-lg-4">
+                <div class="content-card text-center h-100">
+
+                    <div style="width: 90px; height: 90px; border-radius: 50%; background: #111827; color: white; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 800; margin: 0 auto 18px auto;">
+                        <span th:text="${#strings.substring(adminUser.fullName, 0, 1)}">A</span>
+                    </div>
+
+                    <h4 class="mb-1" th:text="${adminUser.fullName}">Admin Name</h4>
+
+                    <p class="text-muted mb-3" th:text="${adminUser.email}">
+                        admin@gym.com
+                    </p>
+
+                    <span th:if="${adminUser.role.name() == 'SUPER_ADMIN'}"
+                          class="badge text-bg-dark">
+                        SUPER ADMIN
+                    </span>
+
+                    <span th:if="${adminUser.role.name() == 'ADMIN'}"
+                          class="badge text-bg-primary">
+                        ADMIN
+                    </span>
+
+                    <div class="mt-4">
+                        <a href="/profile/change-password" class="btn btn-dark action-btn w-100">
+                            Change Password
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Account Details -->
+            <div class="col-lg-8">
+                <div class="content-card h-100">
+
+                    <h5 class="mb-4">Account Details</h5>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Full Name</p>
+                            <h6 th:text="${adminUser.fullName}">Admin Name</h6>
+                        </div>
+
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Username</p>
+                            <h6 th:text="${adminUser.username}">admin</h6>
+                        </div>
+
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Email</p>
+                            <h6 th:text="${adminUser.email}">admin@gym.com</h6>
+                        </div>
+
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Role</p>
+                            <h6 th:text="${adminUser.role}">SUPER_ADMIN</h6>
+                        </div>
+
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Account Status</p>
+
+                            <span th:if="${adminUser.enabled}"
+                                  class="badge text-bg-success">
+                                ENABLED
+                            </span>
+
+                            <span th:if="${!adminUser.enabled}"
+                                  class="badge text-bg-danger">
+                                DISABLED
+                            </span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Created At</p>
+                            <h6 th:text="${adminUser.createdAt}">Created At</h6>
+                        </div>
+
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="alert alert-info mb-0">
+                        For security, change your default password after first login.
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

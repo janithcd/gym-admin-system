@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/plans")
@@ -29,9 +31,22 @@ public class MembershipPlanController {
     }
 
     @PostMapping("/save")
-    public String savePlan(@ModelAttribute MembershipPlan plan) {
-        membershipPlanService.savePlan(plan);
-        return "redirect:/plans";
+    public String savePlan(@ModelAttribute MembershipPlan plan,
+                           Model model,
+                           RedirectAttributes redirectAttributes) {
+        try {
+            membershipPlanService.savePlan(plan);
+
+            redirectAttributes.addFlashAttribute("successMessage", "Membership plan saved successfully.");
+            return "redirect:/plans";
+
+        } catch (RuntimeException e) {
+            model.addAttribute("plan", plan);
+            model.addAttribute("statuses", MembershipPlanStatus.values());
+            model.addAttribute("errorMessage", e.getMessage());
+
+            return "plans/form";
+        }
     }
 
     @GetMapping("/edit/{id}")
@@ -42,8 +57,16 @@ public class MembershipPlanController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deletePlan(@PathVariable Long id) {
-        membershipPlanService.deletePlan(id);
+    public String deletePlan(@PathVariable Long id,
+                             RedirectAttributes redirectAttributes) {
+        try {
+            membershipPlanService.deletePlan(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Membership plan deleted successfully.");
+
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Cannot delete this plan. It may already be used in payment records.");
+        }
+
         return "redirect:/plans";
     }
 }

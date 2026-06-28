@@ -26,6 +26,9 @@ public class DashboardService {
     private final MembershipPlanRepository membershipPlanRepository;
     private final PaymentRepository paymentRepository;
     private final AccessLogRepository accessLogRepository;
+    private final MembershipExpiryService membershipExpiryService;
+
+
 
     public DashboardStats getDashboardStats() {
         LocalDate today = LocalDate.now();
@@ -38,6 +41,8 @@ public class DashboardService {
 
         LocalDateTime todayStartTime = today.atStartOfDay();
         LocalDateTime todayEndTime = today.plusDays(1).atStartOfDay().minusNanos(1);
+
+
 
         long totalMembers = memberRepository.count();
         long activeMembers = memberRepository.countByStatus(MemberStatus.ACTIVE);

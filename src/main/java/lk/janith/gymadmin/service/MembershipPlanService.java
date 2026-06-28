@@ -29,6 +29,7 @@ public class MembershipPlanService {
 
     public MembershipPlan savePlan(MembershipPlan plan) {
         normalizePlan(plan);
+        validatePlan(plan);
 
         if (plan.getId() == null) {
             if (plan.getStatus() == null) {
@@ -47,6 +48,27 @@ public class MembershipPlanService {
         existingPlan.setStatus(plan.getStatus());
 
         return membershipPlanRepository.save(existingPlan);
+    }
+
+    private void validatePlan(MembershipPlan plan) {
+        if (plan.getPlanName() == null || plan.getPlanName().isBlank()) {
+            throw new RuntimeException("Plan name is required.");
+        }
+
+        if (plan.getDurationDays() == null || plan.getDurationDays() <= 0) {
+            throw new RuntimeException("Duration days must be greater than 0.");
+        }
+
+        if (plan.getPrice() == null || plan.getPrice().signum() <= 0) {
+            throw new RuntimeException("Plan price must be greater than 0.");
+        }
+
+        membershipPlanRepository.findByPlanNameIgnoreCase(plan.getPlanName())
+                .ifPresent(existingPlan -> {
+                    if (plan.getId() == null || !existingPlan.getId().equals(plan.getId())) {
+                        throw new RuntimeException("Plan name already exists.");
+                    }
+                });
     }
 
     public void deletePlan(Long id) {

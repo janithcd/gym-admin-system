@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Access Report')}"></head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="main-content">
+
+        <div th:replace="~{fragments/layout :: topbar('Access Report', 'View gym entry attempts within a selected date range')}"></div>
+
+        <div class="content-card mb-4">
+
+            <form th:action="@{/reports/access-report}" method="get" class="row g-3 align-items-end">
+
+                <div class="col-md-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date"
+                           name="startDate"
+                           class="form-control"
+                           th:value="${startDate}">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date"
+                           name="endDate"
+                           class="form-control"
+                           th:value="${endDate}">
+                </div>
+
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-dark action-btn">Generate Report</button>
+                    <a href="/reports" class="btn btn-outline-secondary action-btn">Back</a>
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+                <div class="content-card">
+                    <p class="text-muted mb-1">Total Access Attempts</p>
+                    <h3 th:text="${summary.totalRecords}">0</h3>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="content-card">
+                    <p class="text-muted mb-1">Access Granted</p>
+                    <h3 class="text-success" th:text="${summary.accessGranted}">0</h3>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="content-card">
+                    <p class="text-muted mb-1">Access Denied</p>
+                    <h3 class="text-danger" th:text="${summary.accessDenied}">0</h3>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="content-card">
+
+            <h5 class="mb-3">Access Log Records</h5>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Entered Code</th>
+                        <th>Member</th>
+                        <th>Status</th>
+                        <th>Reason</th>
+                        <th>Access Time</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="log : ${logs}">
+                        <td th:text="${log.id}"></td>
+                        <td th:text="${log.enteredMemberCode}"></td>
+
+                        <td>
+                            <div th:if="${log.member != null}">
+                                <strong th:text="${log.member.memberCode}"></strong><br>
+                                <span class="text-muted" th:text="${log.member.fullName}"></span>
+                            </div>
+
+                            <div th:if="${log.member == null}">
+                                <span class="text-muted">Unknown Member</span>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span th:if="${log.accessStatus.name() == 'GRANTED'}"
+                                  class="badge text-bg-success">
+                                GRANTED
+                            </span>
+
+                            <span th:if="${log.accessStatus.name() == 'DENIED'}"
+                                  class="badge text-bg-danger">
+                                DENIED
+                            </span>
+                        </td>
+
+                        <td th:text="${log.reason}"></td>
+                        <td th:text="${log.accessTime}"></td>
+                    </tr>
+
+                    <tr th:if="${logs.isEmpty()}">
+                        <td colspan="6" class="text-center text-muted">
+                            No access logs found for this date range.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>
